@@ -7,7 +7,6 @@
 /*
  * ORDERED TABLE TESTS
  */
-
 TEST(TemplateOrderedTable, EmptyInit) {
     OrderedTable<int, int> t;
     EXPECT_TRUE(t.empty());
