@@ -1,7 +1,4 @@
-add_library(hash_tables INTERFACE)
-target_include_directories(hash_tables INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+add_library(hash_tables STATIC
+        pustishka1.cpp
 )
-target_link_libraries(hash_tables INTERFACE
-        poly_include
-)
+target_link_libraries(hash_tables PUBLIC poly_include)
