@@ -18,7 +18,7 @@
 
 #include "polynomus.hpp"
 
-class poly_parser {
+class PolyParser {
 public:
 
     static Polynomus parse(const std::string& expr) {

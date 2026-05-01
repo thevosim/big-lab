@@ -7,5 +7,5 @@ add_executable(qt_app
 )
 target_link_libraries(qt_app
         Qt6::Widgets
-        poly_src
+        containers
 )

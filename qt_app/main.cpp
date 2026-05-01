@@ -3,7 +3,7 @@
 
 
 int main() {
-    auto p = "x*(y+z)";
+    auto p = PolyParser::parse("(x+z+y^3)*x^2");
     std::cout << p << '\n';
     return 0;
 }
