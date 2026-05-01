@@ -10,10 +10,6 @@ add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(qt_app)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
-
 include(FetchContent)
 FetchContent_Declare(
         googletest

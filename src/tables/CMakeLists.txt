@@ -1,4 +1,7 @@
-add_library(tables STATIC
-        pustishka2.cpp
+add_library(tables INTERFACE)
+target_include_directories(tables INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(tables PUBLIC poly_include)
+target_link_libraries(tables INTERFACE
+        poly_include
+)
