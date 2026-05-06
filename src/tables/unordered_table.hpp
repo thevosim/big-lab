@@ -12,10 +12,9 @@ public:
     using Pair = std::pair<K, V>;
     using iterator = typename std::vector<Pair>::iterator;
     using const_iterator = typename std::vector<Pair>::const_iterator;
-
+    UnorderedTable(){}
 private:
     std::vector<Pair> data;
-
     iterator internal_find(const K& key)
     {
         for (auto it = data.begin(); it != data.end(); ++it)

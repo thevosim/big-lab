@@ -73,6 +73,7 @@ private:
     }
 
 public:
+    OpenAddressHashTable(){}
     OpenAddressHashTable(size_t cap = INITIAL_CAPACITY) : capacity(cap) 
     {
         table.resize(capacity);
