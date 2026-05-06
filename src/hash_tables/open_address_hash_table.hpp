@@ -73,11 +73,10 @@ private:
     }
 
 public:
-    HashTable(size_t cap = 8) : capacity(cap) 
+    OpenAddressHashTable(size_t cap = INITIAL_CAPACITY) : capacity(cap) 
     {
         table.resize(capacity);
     }
-
     class Iterator 
     {
     private:
@@ -128,7 +127,7 @@ public:
 
     void insert(const K& key, const V& value) 
     {
-        if (size >= capacity * INITIAL_CAPACITY) 
+        if (size >= capacity * LOAD_FACTOR_THRESHOLD) 
         {
             rehash();
         }
@@ -195,9 +194,9 @@ public:
 
         size_t idx = customHash(key);
 
-        while (table[idx].state == OCCUPIED) 
+        while (table[idx].state != EMPTY) 
         {
-            if (table[idx].key == key) 
+            if (table[idx].state == OCCUPIED && table[idx].key == key) 
             {
                 return table[idx].value;
             }
