@@ -1,3 +1,6 @@
+#ifndef UNORDERED_TABLE
+#define UNORDERED_TABLE
+
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -13,30 +16,47 @@ public:
 private:
     std::vector<Pair> data;
 
-    iterator find(const K& key)
+    iterator internal_find(const K& key)
     {
         for (auto it = data.begin(); it != data.end(); ++it)
         {
             if (it->first == key)
+            {
                 return it;
+            }
         }
         return data.end();
     }
 
 public:
-    iterator begin() { return data.begin(); }
+    iterator begin()
+    {
+        return data.begin();
+    }
 
-    iterator end() { return data.end(); }
+    iterator end()
+    {
+        return data.end();
+    }
 
-    const_iterator begin() const { return data.begin(); }
+    const_iterator begin() const
+    {
+        return data.begin();
+    }
 
-    const_iterator end() const { return data.end(); }
+    const_iterator end() const
+    {
+        return data.end();
+    }
 
-    iterator find(const K& key) { return internal_find(key); }
+    iterator find(const K& key)
+    {
+        return internal_find(key);
+    }
 
     std::pair<iterator, bool> insert(const Pair& value)
     {
-        iterator it = find(value.first);
+        iterator it = internal_find(value.first);
         if (it != data.end())
         {
             return { it, false };
@@ -120,3 +140,5 @@ public:
         data.reserve(n);
     }
 };
+
+#endif
