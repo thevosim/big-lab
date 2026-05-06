@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <random>
-#include "../src/tables/ordered_table.hpp"
+#include "ordered_table.hpp"
 
 /*
  * ORDERED TABLE TESTS
