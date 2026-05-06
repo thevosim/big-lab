@@ -129,7 +129,6 @@ private:
     }
 
 public:
-    AVLTree() {}
     AVLTree() : root(nullptr)
     {
     }

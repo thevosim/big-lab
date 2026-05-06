@@ -5,7 +5,7 @@
 #include <string>
 #include <optional>
 #include <cstdint>
-
+#include <iterator>
 enum State 
 { 
     EMPTY, 
@@ -73,7 +73,6 @@ private:
     }
 
 public:
-    OpenAddressHashTable(){}
     OpenAddressHashTable(size_t cap = INITIAL_CAPACITY) : capacity(cap) 
     {
         table.resize(capacity);
