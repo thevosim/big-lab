@@ -3,10 +3,13 @@
 
 #include <algorithm>
 #include <iostream>
+#include <vector>
+#include <string>
 
 template <typename T>
 class AVLTree
 {
+    friend class AVLTreeTest;
 private:
     struct Node
     {
@@ -83,7 +86,43 @@ private:
 
         return p;
     }
+    Node* find(Node* p, const T& k)
+    {
+        if (!p)
+        {
+            return nullptr;
+        }
 
+        if (k < p->key)
+        {
+            return find(p->left, k);
+        }
+        if (k > p->key)
+        {
+            return find(p->right, k);
+        }
+
+        return p;
+    }
+
+    const Node* find(Node* p, const T& k) const
+    {
+        if (!p)
+        {
+            return nullptr;
+        }
+
+        if (k < p->key)
+        {
+            return find(p->left, k);
+        }
+        if (k > p->key)
+        {
+            return find(p->right, k);
+        }
+
+        return p;
+    }
     Node* insert(Node* p, T k)
     {
         if (!p)
@@ -101,12 +140,49 @@ private:
         }
         else
         {
+            p->key = k;
             return p;
         }
 
         return balance(p);
     }
+    Node* findMin(Node* p)
+    {
+        return p->left ? findMin(p->left) : p;
+    }
+    Node* removeMin(Node* p)
+    {
+        if (!p->left) return p->right;
+        p->left = removeMin(p->left);
+        return balance(p);
+    }
+    Node* remove(Node* p, T k)
+    {
+        if (!p) return nullptr;
 
+        if (k < p->key)
+        {
+            p->left = remove(p->left, k);
+        }
+        else if (k > p->key)
+        {
+            p->right = remove(p->right, k);
+        }
+        else
+        {
+            Node* q = p->left;
+            Node* r = p->right;
+            delete p;
+
+            if (!r) return q;
+
+            Node* min = findMin(r);
+            min->right = removeMin(r);
+            min->left = q;
+            return balance(min);
+        }
+        return balance(p);
+    }
     void inorder(Node* p)
     {
         if (!p)
@@ -127,8 +203,31 @@ private:
             delete p;
         }
     }
+    void collectAll(Node* p, std::vector<TableItem>& vec) 
+    {
+        if (!p) return;
+        collectAll(p->left, vec);
+        vec.push_back(p->key);
+        collectAll(p->right, vec);
+    }
+    
 
 public:
+    struct TableItem 
+    {
+        std::string key;
+        Polynomus value;
+
+        bool operator<(const TableItem& o) const { return key < o.key; }
+        bool operator>(const TableItem& o) const { return key > o.key; }
+        bool operator==(const TableItem& o) const { return key == o.key; }
+    };
+
+    void collectAll(std::vector<TableItem>& vec) 
+    {
+        collectAll(root, vec);
+    }
+
     AVLTree() : root(nullptr)
     {
     }
@@ -142,11 +241,19 @@ public:
     {
         root = insert(root, k);
     }
-
+    void remove(T k)
+    {
+        root = remove(root, k);
+    }
     void print()
     {
         inorder(root);
         std::cout << std::endl;
+    }
+    const T* find(const T& k) const
+    {
+        const Node* p = find(root, k);
+        return p ? &p->key : nullptr;
     }
 };
 
