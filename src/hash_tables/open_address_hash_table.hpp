@@ -6,6 +6,10 @@
 #include <optional>
 #include <cstdint>
 #include <iterator>
+#include <type_traits>
+#include <utility>
+#include <functional>
+
 enum State 
 { 
     EMPTY, 
@@ -33,25 +37,27 @@ private:
     size_t capacity;
     size_t size = 0;
 
-    size_t customHash(int key) const
+    // Единый метод хеширования с использованием compile-time ветвления (C++17)
+    size_t customHash(const K& key) const
     {
-        return (static_cast<size_t>(key) * KNUTH_GOLDEN_RATIO) % capacity;
-    }
-
-    size_t customHash(const std::string& key) const
-    {
-        size_t h = DJB2_INIT_HASH;
-        for (char c : key)
+        if constexpr (std::is_same_v<K, std::string>)
         {
-            h = ((h << 5) + h) + c;
+            size_t h = DJB2_INIT_HASH;
+            for (char c : key)
+            {
+                h = ((h << 5) + h) + c;
+            }
+            return h % capacity;
         }
-        return h % capacity;
-    }
-
-    template <typename T>
-    size_t customHash(const T& key) const
-    {
-        return static_cast<size_t>(key) % capacity;
+        else if constexpr (std::is_integral_v<K>)
+        {
+            return (static_cast<size_t>(key) * KNUTH_GOLDEN_RATIO) % capacity;
+        }
+        else
+        {
+            // Резервный вариант для любых других типов (включая пользовательские)
+            return std::hash<K>{}(key) % capacity;
+        }
     }
 
     void rehash() 
@@ -77,6 +83,7 @@ public:
     {
         table.resize(capacity);
     }
+
     class Iterator 
     {
     private:
@@ -94,6 +101,9 @@ public:
     public:
         using iterator_category = std::forward_iterator_tag;
         using value_type = std::pair<K, V>;
+        using difference_type = std::ptrdiff_t;
+        using pointer = std::pair<const K&, V&>*;
+        using reference = std::pair<const K&, V&>;
 
         Iterator(typename std::vector<Node>::iterator start, typename std::vector<Node>::iterator last)
             : curr(start), end(last) 
@@ -101,9 +111,20 @@ public:
             skipEmpty();
         }
 
-        std::pair<const K&, V&> operator*() const 
+        reference operator*() const 
         {
             return { curr->key, curr->value };
+        }
+
+        // Прокси-структура для обеспечения синтаксиса it->first / it->second
+        struct Proxy {
+            std::pair<const K&, V&> pair;
+            std::pair<const K&, V&>* operator->() { return &pair; }
+        };
+
+        Proxy operator->() const 
+        {
+            return Proxy{ { curr->key, curr->value } };
         }
 
         Iterator& operator++() 
@@ -120,6 +141,11 @@ public:
         {
             return curr != other.curr;
         }
+
+        bool operator==(const Iterator& other) const 
+        {
+            return curr == other.curr;
+        }
     };
 
     Iterator begin() { return Iterator(table.begin(), table.end()); }
@@ -133,20 +159,32 @@ public:
         }
 
         size_t idx = customHash(key);
+        size_t insert_idx = capacity; 
+        size_t start_idx = idx;
 
-        while (table[idx].state == OCCUPIED) 
+        while (table[idx].state != EMPTY) 
         {
-            if (table[idx].key == key) 
+            if (table[idx].state == OCCUPIED && table[idx].key == key) 
             {
                 table[idx].value = value;
                 return;
             }
+            if (table[idx].state == DELETED && insert_idx == capacity) 
+            {
+                insert_idx = idx; 
+            }
             idx = (idx + 1) % capacity;
+            if (idx == start_idx) break;
         }
 
-        table[idx].key = key;
-        table[idx].value = value;
-        table[idx].state = OCCUPIED;
+        if (insert_idx == capacity) 
+        {
+            insert_idx = idx;
+        }
+
+        table[insert_idx].key = key;
+        table[insert_idx].value = value;
+        table[insert_idx].state = OCCUPIED;
         size++;
     }
 
@@ -193,6 +231,8 @@ public:
         }
 
         size_t idx = customHash(key);
+        size_t insert_idx = capacity;
+        size_t start_idx = idx;
 
         while (table[idx].state != EMPTY) 
         {
@@ -200,16 +240,27 @@ public:
             {
                 return table[idx].value;
             }
+            if (table[idx].state == DELETED && insert_idx == capacity) 
+            {
+                insert_idx = idx;
+            }
             idx = (idx + 1) % capacity;
+            if (idx == start_idx) break;
         }
 
-        table[idx].key = key;
-        table[idx].value = V(); 
-        table[idx].state = OCCUPIED;
+        if (insert_idx == capacity) 
+        {
+            insert_idx = idx;
+        }
+
+        table[insert_idx].key = key;
+        table[insert_idx].value = V(); 
+        table[insert_idx].state = OCCUPIED;
         size++;
 
-        return table[idx].value;
+        return table[insert_idx].value;
     }
+    
     size_t get_size() const { return size; }
     size_t get_capacity() const { return capacity; }
 };

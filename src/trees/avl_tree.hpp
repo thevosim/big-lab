@@ -203,7 +203,7 @@ private:
             delete p;
         }
     }
-    void collectAll(Node* p, std::vector<TableItem>& vec) 
+    void collectAll(Node* p, std::vector<T>& vec) 
     {
         if (!p) return;
         collectAll(p->left, vec);
@@ -216,14 +216,14 @@ public:
     struct TableItem 
     {
         std::string key;
-        Polynomus value;
+        T value;
 
         bool operator<(const TableItem& o) const { return key < o.key; }
         bool operator>(const TableItem& o) const { return key > o.key; }
         bool operator==(const TableItem& o) const { return key == o.key; }
     };
 
-    void collectAll(std::vector<TableItem>& vec) 
+    void collectAll(std::vector<T>& vec) 
     {
         collectAll(root, vec);
     }

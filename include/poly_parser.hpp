@@ -1,13 +1,13 @@
-/*  с чем работает:
- *  - операторы: +, -, *
- *  - скобки: ( )
- *  - мономы: 2*x^2*y
- *  - умножение только явное: 2*x, x*y
+/* с чем работает:
+ * - операторы: +, -, *
+ * - скобки: ( )
+ * - мономы: 2*x^2*y
+ * - умножение только явное: 2*x, x*y
  *
- *  что я не захотел делать:
- *  - унарный минус
- *  - неявное умножение
- *  - деление полиномов
+ * что я не захотел делать:
+ * - унарный минус
+ * - неявное умножение
+ * - деление полиномов
  */
 
 #pragma once
@@ -18,16 +18,16 @@
 
 #include "polynomus.hpp"
 
-class PolyParser {
+class PolyParser 
+{
 public:
-
-    static Polynomus parse(const std::string& expr) {
+    static Polynomus parse(const std::string& expr) 
+    {
         std::stack<Polynomus> values;
         std::stack<char> ops;
 
         size_t i = 0;
         while (i < expr.size()) {
-
             if (std::isspace(expr[i])) {
                 i++;
                 continue;
@@ -48,7 +48,6 @@ public:
                 ops.pop();
                 i++;
             }
-
             else if (expr[i] == '+' || expr[i] == '-' || expr[i] == '*') {
                 char op = expr[i];
 
@@ -60,17 +59,16 @@ public:
                 ops.push(op);
                 i++;
             }
-
-            else if (std::isalnum(expr[i])) {
+            else if (std::isalnum(expr[i]) || expr[i] == '.') {
                 std::string token;
+
                 while (i < expr.size() &&
-                       (std::isalnum(expr[i]) || expr[i] == '^')) {
+                       (std::isalnum(expr[i]) || expr[i] == '^' || expr[i] == '.')) {
                     token += expr[i++];
                 }
 
                 values.push(makePoly(token));
             }
-
             else {
                 throw std::runtime_error("Invalid character in expression");
             }
@@ -82,13 +80,14 @@ public:
             applyOp(values, ops.top());
             ops.pop();
         }
+        
         if (values.size() != 1)
             throw std::runtime_error("Invalid expression");
+            
         return values.top();
     }
 
 private:
-
     static int priority(char op) {
         if (op == '+' || op == '-') return 1;
         if (op == '*') return 2;
@@ -110,36 +109,42 @@ private:
     static Monomus parseMonom(const std::string& token) {
         double coeff = 1.0;
         uint32_t x = 0, y = 0, z = 0;
-
         size_t i = 0;
-        if (i < token.size() && std::isdigit(token[i])) {
-            coeff = 0;
+
+        if (i < token.size() && (std::isdigit(token[i]) || token[i] == '.')) {
+            coeff = 0.0;
             while (i < token.size() && std::isdigit(token[i])) {
-                coeff = coeff * 10 + (token[i] - '0');
+                coeff = coeff * 10.0 + (token[i] - '0');
                 i++;
+            }
+            if (i < token.size() && token[i] == '.') {
+                i++;
+                double divisor = 10.0;
+                while (i < token.size() && std::isdigit(token[i])) {
+                    coeff += (token[i] - '0') / divisor;
+                    divisor *= 10.0;
+                    i++;
+                }
             }
         }
 
-        while (i < token.size()) {
+        while (i < token.size() && std::isalpha(token[i])) {
             char var = token[i++];
             uint32_t power = 1;
 
             if (i < token.size() && token[i] == '^') {
                 i++;
                 power = 0;
-                if (i >= token.size() || !std::isdigit(token[i]))
-                    throw std::runtime_error("Invalid power");
-
                 while (i < token.size() && std::isdigit(token[i])) {
                     power = power * 10 + (token[i] - '0');
                     i++;
                 }
             }
 
-            if (var == 'x') x = power;
-            else if (var == 'y') y = power;
-            else if (var == 'z') z = power;
-            else throw std::runtime_error("Unknown variable");
+            if (var == 'x') x += power;
+            else if (var == 'y') y += power;
+            else if (var == 'z') z += power;
+            else throw std::runtime_error(std::string("Unknown variable: ") + var);
         }
 
         return {x, y, z, coeff};
@@ -150,6 +155,4 @@ private:
         p.addMonom(parseMonom(token));
         return p;
     }
-
 };
-

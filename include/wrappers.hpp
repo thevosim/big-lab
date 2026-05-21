@@ -7,12 +7,13 @@
 #include <iterator>
 #include <optional>
 
+
 #include "avl_tree.hpp"
-#include "red_black_tree.hpp"
+//#include "rb_tree.hpp"
 #include "chain_hash_table.hpp"
 #include "open_address_hash_table.hpp"
 #include "unordered_table.hpp"
-
+#include "ordered_table.hpp"
 template <typename K, typename V>
 class ITableWrapper
 {
@@ -133,11 +134,29 @@ public:
     {
         std::vector<Element> tmp;
         tree->collectAll(tmp);
+        
         for (const auto& item : tmp)
         {
-            vec.push_back({ item.key, item.value });
+            vec.emplace_back(item.key, item.value);
         }
     }
+};
+
+// ЗАГЛУШКА ДЛЯ КОМПИЛЯЦИИ
+template <typename K, typename V>
+class RBTree 
+{
+public:
+    bool insert(const K&, const V&) { return true; }
+    bool erase(const K&) { return true; }
+    V* find(const K&) { return nullptr; }
+    const V* find(const K&) const { return nullptr; }
+    void clear() {}
+    size_t size() const { return 0; }
+    bool empty() const { return true; }
+    
+    template <typename Func>
+    void inorder(Func&&) const {} // Чтобы собирались данные в collectAll
 };
 
 template <typename K, typename V>
@@ -360,7 +379,7 @@ public:
     {
         for (auto it = table->begin(); it != table->end(); ++it)
         {
-            vec.push_back({ it->key, it->value });
+            vec.push_back({ it->first, it->second });
         }
     }
 };
@@ -442,4 +461,79 @@ public:
     }
 };
 
+template <typename K, typename V>
+class OrderedTableWrapper : public ITableWrapper<K, V>
+{
+private:
+    OrderedTable<K, V>* table;
+
+public:
+    OrderedTableWrapper() : table(new OrderedTable<K, V>())
+    {
+    }
+
+    ~OrderedTableWrapper() override
+    {
+        delete table;
+    }
+
+    bool insert(const K& key, const V& value) override
+    {
+        bool inserted = table->insert(key, value);
+        if (!inserted)
+        {
+            (*table)[key] = value;
+        }
+        return inserted;
+    }
+
+    bool erase(const K& key) override
+    {
+        return table->erase(key);
+    }
+
+    V* find(const K& key) override
+    {
+        auto it = table->find(key);
+        if (it != table->end())
+        {
+            return &it->second;
+        }
+        return nullptr;
+    }
+
+    const V* find(const K& key) const override
+    {
+        const OrderedTable<K, V>* const_table = table;
+        auto it = const_table->find(key);
+        if (it != const_table->end())
+        {
+            return &it->second;
+        }
+        return nullptr;
+    }
+
+    void clear() override
+    {
+        table->clear();
+    }
+
+    size_t size() const override
+    {
+        return table->size();
+    }
+
+    bool empty() const override
+    {
+        return table->empty();
+    }
+
+    void collectAll(std::vector<std::pair<K, V>>& vec) override
+    {
+        for (auto it = table->begin(); it != table->end(); ++it)
+        {
+            vec.push_back({ it->first, it->second });
+        }
+    }
+};
 #endif
