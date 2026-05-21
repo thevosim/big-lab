@@ -4,15 +4,11 @@ project(laba1)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O3")
 
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(qt_app)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
 include(FetchContent)
 FetchContent_Declare(

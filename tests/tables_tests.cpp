@@ -2,8 +2,8 @@
 #include <map>
 #include <random>
 #include <gtest/gtest.h>
-#include "ordered_table.hpp"
-#include "unordered_table.hpp"
+#include "../src/tables/ordered_table.hpp"
+#include "../src/tables/unordered_table.hpp"
 /*
  * ORDERED TABLE TESTS
  */

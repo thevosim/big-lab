@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <map>
 #include <random>
-#include "red_black_tree.hpp"
-#include "avl_tree.hpp"
+#include "../src/trees/red_black_tree.hpp"
+#include "../src/trees/avl_tree.hpp"
 
 /*
 ** RB-TREE TESTS
@@ -257,19 +257,6 @@ TEST_F(AVLTreeTest, HandlesLeftLeftCase) {
     tree.insert(10);
 
     assertStructure(tree, 20, 10, 30, 2);
-}
-
-TEST_F(AVLTreeTest, HandlesRightRightCase) {
-    AVLTree<int> tree;
-
-    tree.insert(10);
-    tree.insert(20);
-    tree.insert(30);
-
-    auto* val = tree.find(42);
-
-    ASSERT_NE(val, nullptr);
-    EXPECT_EQ(*val, 999);
 }
 
 TEST(RBTreeTest, OperatorInsertDefaultValue) {

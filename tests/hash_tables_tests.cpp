@@ -1,7 +1,7 @@
 #include <string>
 #include <gtest/gtest.h>
-#include "chain_hash_table.hpp"
-#include "open_address_hash_table.hpp"
+#include "../src/hash_tables/chain_hash_table.hpp"
+#include "../src/hash_tables/open_address_hash_table.hpp"
 /*
  * CHAIN HASH TABLE TESTS
  */

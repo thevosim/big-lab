@@ -7,13 +7,12 @@
 #include <iterator>
 #include <optional>
 
-
-#include "avl_tree.hpp"
-//#include "rb_tree.hpp"
-#include "chain_hash_table.hpp"
-#include "open_address_hash_table.hpp"
-#include "unordered_table.hpp"
-#include "ordered_table.hpp"
+#include "../src/trees/avl_tree.hpp"
+#include "../src/trees/red_black_tree.hpp"
+#include "../src/hash_tables/chain_hash_table.hpp"
+#include "../src/hash_tables/open_address_hash_table.hpp"
+#include "../src/tables/unordered_table.hpp"
+#include "../src/tables/ordered_table.hpp"
 template <typename K, typename V>
 class ITableWrapper
 {
@@ -140,23 +139,6 @@ public:
             vec.emplace_back(item.key, item.value);
         }
     }
-};
-
-// ЗАГЛУШКА ДЛЯ КОМПИЛЯЦИИ
-template <typename K, typename V>
-class RBTree 
-{
-public:
-    bool insert(const K&, const V&) { return true; }
-    bool erase(const K&) { return true; }
-    V* find(const K&) { return nullptr; }
-    const V* find(const K&) const { return nullptr; }
-    void clear() {}
-    size_t size() const { return 0; }
-    bool empty() const { return true; }
-    
-    template <typename Func>
-    void inorder(Func&&) const {} // Чтобы собирались данные в collectAll
 };
 
 template <typename K, typename V>
