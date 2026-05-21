@@ -16,7 +16,7 @@
 #include <cctype>
 #include <stdexcept>
 
-#include "polynomus.hpp"
+#include "polinomus.hpp"
 
 class PolyParser {
 public:
